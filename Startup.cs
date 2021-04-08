@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace TodoAPI
 {
@@ -29,13 +30,13 @@ namespace TodoAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<DataContext>(opt =>
-                opt.UseSqlServer(Configuration.GetConnectionString("MSSQLConnection")),ServiceLifetime.Scoped);
-            services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "TodoAPI", Version = "v1" });
             });
+            services.AddDbContext<DataContext>(opt =>
+                opt.UseSqlServer(Configuration.GetConnectionString("MSSQLConnection")),ServiceLifetime.Scoped);
+            services.AddControllers();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,7 +47,6 @@ namespace TodoAPI
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoAPI v1"));
-                app.UseDeveloperExceptionPage();
             }
 
             app.UseHttpsRedirection();
