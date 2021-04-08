@@ -1,20 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.Data;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using TodoAPI.Methods;
 
 namespace TodoAPI
 {
@@ -36,6 +29,7 @@ namespace TodoAPI
             });
             services.AddDbContext<DataContext>(opt =>
                 opt.UseSqlServer(Configuration.GetConnectionString("MSSQLConnection")),ServiceLifetime.Scoped);
+            services.AddScoped<IAuthMethod, AuthMethod>();
             services.AddControllers();
         }
 

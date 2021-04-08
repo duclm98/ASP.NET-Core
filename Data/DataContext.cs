@@ -13,7 +13,6 @@ namespace TodoAPI.Data
     public DbSet<Product> Products { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Auth> Auth { get; set; }
-    public ActionResult<User> Response { get; internal set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
