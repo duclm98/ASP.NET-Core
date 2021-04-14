@@ -8,6 +8,7 @@ using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using TodoAPI.Data;
 using TodoAPI.Methods;
+using TodoAPI.Middleware;
 
 namespace TodoAPI
 {
@@ -38,16 +39,26 @@ namespace TodoAPI
         {
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoAPI v1"));
+                app.UseDeveloperExceptionPage();
+            } else
+            {
+                app.UseExceptionHandler();
+                app.UseHsts();
             }
 
             app.UseHttpsRedirection();
-
+            // app.UseStaticFiles();
             app.UseRouting();
+            app.UseCors();
+            // app.UseAuthentication();
+            // app.UseAuthorization();
+            // app.UseSession();
+            // app.UseResponseCaching();
+            // app.UseResponseCompression();
 
-            app.UseAuthorization();
+            // app.UseMiddleware<AuthMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

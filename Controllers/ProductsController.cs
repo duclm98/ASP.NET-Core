@@ -14,6 +14,7 @@ namespace TodoAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
+        private readonly HttpContext _httpContext;
         private readonly DataContext _context;
 
         public ProductsController(DataContext context)
@@ -25,6 +26,8 @@ namespace TodoAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
         {
+            // var user = (User)HttpContext.Items["user"];
+            // Console.WriteLine(user.Username);
             return await _context.Products.ToListAsync();
         }
 

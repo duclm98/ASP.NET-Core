@@ -14,10 +14,10 @@ namespace TodoAPI.Controllers
   public class AuthController : ControllerBase
   {
     private readonly DataContext _context;
-    private IConfiguration _config;
+    private readonly IConfiguration _config;
     private readonly IAuthMethod _authMethod;
 
-    public AuthController(DataContext context, IConfiguration config, AuthMethod authMethod)
+    public AuthController(DataContext context, IConfiguration config, IAuthMethod authMethod)
     {
       _context = context;
       _config = config;
@@ -62,7 +62,37 @@ namespace TodoAPI.Controllers
 
       authInfo.AccessToken = _authMethod.GenenateJSONWebToken(u, _config["Jwt:AccessTokenSecret"], Convert.ToDouble(_config["Jwt:AccessTokenExpires"]));
 
-      return authInfo;
+      var createNewRefreshToken = false;
+
+      if (u.RefreshToken == null) {
+        createNewRefreshToken = true;
+      } else {
+        var validateRefreshToken = _authMethod.ValidateJSONWebToken(u.RefreshToken, _config["Jwt:RefreshTokenSecret"]);
+        if( validateRefreshToken == null){
+          createNewRefreshToken = true;
+        }
+      }
+
+      if(createNewRefreshToken == true) {
+        var refreshToken = _authMethod.GenenateJSONWebToken(u, _config["Jwt:RefreshTokenSecret"], Convert.ToDouble(_config["Jwt:RefreshTokenExpires"]));
+        u.RefreshToken = refreshToken;
+
+        _context.Entry(u).State = EntityState.Modified;
+
+        try
+        {
+          await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+          throw;
+        }
+      }
+
+      authInfo.RefreshToken = u.RefreshToken;
+      authInfo.User = u;
+
+      return Ok(authInfo);
     }
   }
 }

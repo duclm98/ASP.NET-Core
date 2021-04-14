@@ -10,6 +10,12 @@ using TodoAPI.Models;
 
 namespace TodoAPI.Methods
 {
+  public interface IAuthMethod
+  {
+    public string GenenateJSONWebToken(User user, string secretKey, double expires);
+    public long? ValidateJSONWebToken(string token, string secretKey);
+  }
+  
   public class AuthMethod : IAuthMethod
   {
     private IConfiguration _config;
@@ -38,7 +44,7 @@ namespace TodoAPI.Methods
       return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public int? ValidateJSONWebToken(string token, string secretKey)
+    public long? ValidateJSONWebToken(string token, string secretKey)
     {
       var tokenHandler = new JwtSecurityTokenHandler();
       try
@@ -54,7 +60,7 @@ namespace TodoAPI.Methods
         }, out SecurityToken validatedToken);
 
         var jwtToken = (JwtSecurityToken)validatedToken;
-        var id = int.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+        var id = long.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
 
         return id;
       }
