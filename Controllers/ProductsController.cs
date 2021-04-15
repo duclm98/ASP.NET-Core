@@ -11,7 +11,6 @@ using TodoAPI.Models;
 
 namespace TodoAPI.Controllers
 {
-    // [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductsController : ControllerBase
