@@ -75,7 +75,7 @@ namespace TodoAPI
             // app.UseResponseCaching();
             // app.UseResponseCompression();
 
-            app.UseMiddleware<AuthMiddleware>(); // Customize middleware xác thực đăng nhập
+            app.UseMiddleware<AuthMiddleware>(); // Sử dụng middleware xác thực đăng nhập
 
             app.UseEndpoints(endpoints =>
             {
