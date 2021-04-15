@@ -34,21 +34,6 @@ namespace TodoAPI
             services.AddDbContext<DataContext>(opt =>
                 opt.UseSqlServer(Configuration.GetConnectionString("MSSQLConnection")),ServiceLifetime.Scoped);
             services.AddControllers();
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-            {
-                options.RequireHttpsMetadata = false;
-                options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = Configuration["Jwt:Issuer"],
-                    ValidAudience = Configuration["Jwt:Audience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:AccessTokenSecret"]))
-                };
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -69,13 +54,10 @@ namespace TodoAPI
             // app.UseStaticFiles();
             app.UseRouting();
             app.UseCors();
-            app.UseAuthentication();
-            app.UseAuthorization();
+            app.UseMiddleware<AuthMiddleware>(); // Sử dụng middleware xác thực đăng nhập
             // app.UseSession();
             // app.UseResponseCaching();
             // app.UseResponseCompression();
-
-            // app.UseMiddleware<AuthMiddleware>(); // Sử dụng middleware xác thực đăng nhập
 
             app.UseEndpoints(endpoints =>
             {
