@@ -15,13 +15,11 @@ namespace TodoAPI.Controllers
   {
     private readonly DataContext _context;
     private readonly IConfiguration _config;
-    private readonly IAuthMethod _authMethod;
 
-    public AuthController(DataContext context, IConfiguration config, IAuthMethod authMethod)
+    public AuthController(DataContext context, IConfiguration config)
     {
       _context = context;
       _config = config;
-      _authMethod = authMethod;
     }
 
     [Route("register")]
@@ -60,21 +58,21 @@ namespace TodoAPI.Controllers
         return BadRequest("Incorrect Username or Password!");
       }
 
-      authInfo.AccessToken = _authMethod.GenenateJSONWebToken(u, _config["Jwt:AccessTokenSecret"], Convert.ToDouble(_config["Jwt:AccessTokenExpires"]));
+      authInfo.AccessToken = AuthMethod.GenenateJSONWebToken(u, _config["Jwt:AccessTokenSecret"], Convert.ToDouble(_config["Jwt:AccessTokenExpires"]), _config["Jwt:Issuer"], _config["Jwt:Audience"]);
 
       var createNewRefreshToken = false;
 
       if (u.RefreshToken == null) {
         createNewRefreshToken = true;
       } else {
-        var validateRefreshToken = _authMethod.ValidateJSONWebToken(u.RefreshToken, _config["Jwt:RefreshTokenSecret"]);
+        var validateRefreshToken = AuthMethod.ValidateJSONWebToken(u.RefreshToken, _config["Jwt:RefreshTokenSecret"], _config["Jwt:Issuer"], _config["Jwt:Audience"]);
         if( validateRefreshToken == null){
           createNewRefreshToken = true;
         }
       }
 
       if(createNewRefreshToken == true) {
-        var refreshToken = _authMethod.GenenateJSONWebToken(u, _config["Jwt:RefreshTokenSecret"], Convert.ToDouble(_config["Jwt:RefreshTokenExpires"]));
+        var refreshToken = AuthMethod.GenenateJSONWebToken(u, _config["Jwt:RefreshTokenSecret"], Convert.ToDouble(_config["Jwt:RefreshTokenExpires"]), _config["Jwt:Issuer"], _config["Jwt:Audience"]);
         u.RefreshToken = refreshToken;
 
         _context.Entry(u).State = EntityState.Modified;

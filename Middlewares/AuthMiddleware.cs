@@ -19,18 +19,18 @@ namespace TodoAPI.Middleware
       _config = config;
     }
 
-    public async Task Invoke(HttpContext httpContext, DataContext dataContext, IAuthMethod authMethod)
+    public async Task Invoke(HttpContext httpContext, DataContext dataContext)
     {
       string[] ignorePath = {"/api/Auth/register", "/api/Auth/login" };
 
       if(!ignorePath.Contains(httpContext.Request.Path.Value)) {
-        await Validate(httpContext, dataContext, authMethod);
+        await Validate(httpContext, dataContext);
       }
 
       await _next(httpContext);
     }
 
-    private async Task Validate(HttpContext httpContext, DataContext dataContext, IAuthMethod authMethod)
+    private async Task Validate(HttpContext httpContext, DataContext dataContext)
     {
       httpContext.Response.Clear();
       httpContext.Response.StatusCode = 400;
@@ -42,7 +42,7 @@ namespace TodoAPI.Middleware
         return;
       }
 
-      var validatedToken = authMethod.ValidateJSONWebToken(accessToken, _config["Jwt:AccessTokenSecret"]);
+      var validatedToken = AuthMethod.ValidateJSONWebToken(accessToken, _config["Jwt:AccessTokenSecret"], _config["Jwt:Issuer"], _config["Jwt:Audience"]);
       
       if (validatedToken == null)
       {

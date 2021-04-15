@@ -10,20 +10,9 @@ using TodoAPI.Models;
 
 namespace TodoAPI.Methods
 {
-  public interface IAuthMethod
+  public class AuthMethod
   {
-    public string GenenateJSONWebToken(User user, string secretKey, double expires);
-    public long? ValidateJSONWebToken(string token, string secretKey);
-  }
-  
-  public class AuthMethod : IAuthMethod
-  {
-    private IConfiguration _config;
-    public AuthMethod(IConfiguration config)
-    {
-      _config = config;
-    }
-    public string GenenateJSONWebToken(User user, string secretKey, double expires)
+    public static string GenenateJSONWebToken(User user, string secretKey, double expires, string issuer, string audience)
     {
       var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
       var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -33,8 +22,8 @@ namespace TodoAPI.Methods
       };
 
       var token = new JwtSecurityToken(
-              _config["Jwt:Issuer"],
-              _config["Jwt:Issuer"],
+              issuer,
+              audience,
               claims,
               notBefore: null,
               expires: DateTime.Now.AddMinutes(expires),
@@ -44,17 +33,20 @@ namespace TodoAPI.Methods
       return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
-    public long? ValidateJSONWebToken(string token, string secretKey)
+    public static long? ValidateJSONWebToken(string token, string secretKey, string issuer, string audience)
     {
       var tokenHandler = new JwtSecurityTokenHandler();
       try
       {
         tokenHandler.ValidateToken(token, new TokenValidationParameters()
         {
+          ValidateIssuer = true,
+          ValidateAudience = true,
+          ValidateLifetime = true,
           ValidateIssuerSigningKey = true,
+          ValidIssuer = issuer,
+          ValidAudience = audience,
           IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey)),
-          ValidateIssuer = false,
-          ValidateAudience = false,
           // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
           ClockSkew = TimeSpan.Zero
         }, out SecurityToken validatedToken);
